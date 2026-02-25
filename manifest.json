@@ -12,7 +12,7 @@
     "entry_point": "kuali_docs_mcp.server:main",
     "mcp_config": {
       "command": "uvx",
-      "args": ["kuali-docs-mcp"],
+      "args": ["--from", "git+https://github.com/kualibuild/kuali-docs-mcp", "kuali-docs-mcp"],
       "env": {
         "GOOGLE_SERVICE_ACCOUNT_KEY": "${user_config.service_account_key}",
         "DRIVE_FOLDER_ID": "${user_config.drive_folder_id}"
