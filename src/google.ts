@@ -1,10 +1,13 @@
 import { google } from "googleapis";
+import { readFileSync } from "fs";
 import TurndownService from "turndown";
 import { markdownToDocRequests } from "./markdown.js";
 
 function getAuth() {
-  const keyJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-  if (!keyJson) throw new Error("GOOGLE_SERVICE_ACCOUNT_KEY is required");
+  let keyJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  const keyFile = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_FILE;
+  if (!keyJson && keyFile) keyJson = readFileSync(keyFile, "utf8");
+  if (!keyJson) throw new Error("GOOGLE_SERVICE_ACCOUNT_KEY or GOOGLE_SERVICE_ACCOUNT_KEY_FILE is required");
   const credentials = JSON.parse(keyJson);
   return new google.auth.GoogleAuth({
     credentials,
@@ -35,6 +38,8 @@ async function getOrCreateSubfolder(name: string): Promise<string> {
   const res = await drive.files.list({
     q: `name = '${name}' and '${rootId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
     fields: "files(id)",
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
   });
 
   if (res.data.files && res.data.files.length > 0) {
@@ -48,6 +53,7 @@ async function getOrCreateSubfolder(name: string): Promise<string> {
       parents: [rootId],
     },
     fields: "id",
+    supportsAllDrives: true,
   });
 
   return folder.data.id!;
@@ -74,6 +80,7 @@ export async function createDoc(
       parents: [parentId],
     },
     fields: "id",
+    supportsAllDrives: true,
   });
 
   const docId = file.data.id!;
@@ -123,6 +130,8 @@ export async function listDocs(
     q: `'${parentId}' in parents and mimeType = 'application/vnd.google-apps.document' and trashed = false`,
     fields: "files(id, name, modifiedTime)",
     orderBy: "modifiedTime desc",
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
   });
 
   return (res.data.files || []).map((f) => ({
