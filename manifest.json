@@ -8,11 +8,11 @@
     "name": "Kuali"
   },
   "server": {
-    "type": "node",
-    "entry_point": "dist/index.js",
+    "type": "python",
+    "entry_point": "kuali_docs_mcp.server:main",
     "mcp_config": {
-      "command": "node",
-      "args": ["${__dirname}/dist/index.js"],
+      "command": "uvx",
+      "args": ["kuali-docs-mcp"],
       "env": {
         "GOOGLE_SERVICE_ACCOUNT_KEY": "${user_config.service_account_key}",
         "DRIVE_FOLDER_ID": "${user_config.drive_folder_id}"

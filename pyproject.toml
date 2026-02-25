@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kuali-docs-mcp"
+version = "1.0.0"
+description = "Google Docs MCP server for Kuali — create docs, read comments, collaborate with Claude"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.0.0",
+    "google-api-python-client>=2.0.0",
+    "google-auth>=2.0.0",
+    "html2text>=2020.1.16",
+]
+
+[project.scripts]
+kuali-docs-mcp = "kuali_docs_mcp.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kuali_docs_mcp"]
