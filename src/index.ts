@@ -6,6 +6,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import {
   createDoc,
+  updateDoc,
   readDoc,
   listDocs,
   getComments,
@@ -39,6 +40,18 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           },
         },
         required: ["title", "content"],
+      },
+    },
+    {
+      name: "update_doc",
+      description: "Replace the full content of a Google Doc with new Markdown content.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          doc: { type: "string", description: "Google Doc URL or document ID" },
+          content: { type: "string", description: "New document content in Markdown format" },
+        },
+        required: ["doc", "content"],
       },
     },
     {
@@ -144,6 +157,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             },
           ],
         };
+      }
+
+      case "update_doc": {
+        await updateDoc(args!.doc as string, args!.content as string);
+        return { content: [{ type: "text", text: "Doc updated." }] };
       }
 
       case "read_doc": {

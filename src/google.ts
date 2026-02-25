@@ -101,6 +101,28 @@ export async function createDoc(
   };
 }
 
+export async function updateDoc(docIdOrUrl: string, content: string): Promise<void> {
+  const auth = getAuth();
+  const docs = google.docs({ version: "v1", auth });
+  const docId = parseDocId(docIdOrUrl);
+
+  // Get current doc to find body length
+  const doc = await docs.documents.get({ documentId: docId });
+  const endIndex = doc.data.body?.content?.at(-1)?.endIndex ?? 2;
+
+  const requests: object[] = [];
+
+  // Delete all existing content (leave index 1 intact — Docs requires at least 1 char)
+  if (endIndex > 2) {
+    requests.push({ deleteContentRange: { range: { startIndex: 1, endIndex: endIndex - 1 } } });
+  }
+
+  // Insert new content
+  requests.push(...markdownToDocRequests(content));
+
+  await docs.documents.batchUpdate({ documentId: docId, requestBody: { requests } });
+}
+
 export async function readDoc(docIdOrUrl: string): Promise<string> {
   const auth = getAuth();
   const drive = google.drive({ version: "v3", auth });
